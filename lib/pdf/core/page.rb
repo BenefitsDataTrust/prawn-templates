@@ -15,6 +15,9 @@ module PDF
         @trims = options[:trims] || ZERO_INDENTS
         @art_indents = options[:art_indents] || ZERO_INDENTS
         @stack = GraphicStateStack.new(options[:graphic_state])
+        @size = options[:size] || 'LETTER'
+        @layout = options[:layout] || :portrait
+
         if options[:object_id]
           init_from_object(options)
         else
@@ -64,7 +67,7 @@ module PDF
         if imported_page?
           media_box = inherited_dictionary_value(:MediaBox)
           return media_box.data if media_box.is_a?(PDF::Core::Reference)
-          return media_box
+          return media_box unless media_box.nil?
         end
 
         coords = PDF::Core::PageGeometry::SIZES[size] || size
@@ -100,9 +103,6 @@ module PDF
 
       alias __init_new_page init_new_page if method_defined? :init_new_page
       def init_new_page(options)
-        @size = options[:size] || 'LETTER'
-        @layout = options[:layout] || :portrait
-
         @stamp_stream = nil
         @stamp_dictionary = nil
         @imported_page = false
